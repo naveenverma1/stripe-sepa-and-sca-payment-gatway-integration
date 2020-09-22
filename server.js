@@ -6,7 +6,7 @@ const { resolve } = require("path");
 const bodyParser = require("body-parser");
 const stripe = require("stripe")('sk_test_51HNXcdICR0NVfhA1jTSZ93s3hsPX8L1uQsDBeRkK9mkzUtn44srebA18czdMvBiJVo7infozLjVc0TCsBepQED7h003VRwixxQ')
 const webhookSecret = 'whsec_OHqWX2tDNVQkWwCraQn0pkgrezk9BQWd';
-
+const db = require('./dbConfig')
 app.use(express.static('.'));
 // Use JSON parser for all non-webhook routes
 app.use((req, res, next) => {
@@ -28,10 +28,28 @@ app.get("/success", (req, res) => {
 });
 
 app.get('/checkout-session', async (req, res) => {
+  
   const session = await stripe.checkout.sessions.retrieve(req.query.id, {
-    expand: ['line_items']
+    expand: ['line_items','customer','subscription'],
+    
   });
-  res.json(session);
+  const subscriptions = await stripe.subscriptions.list({
+    limit: 3,
+  });
+ // console.log(subscriptions)
+//   const subscriptions =  stripe.subscriptions.list({
+//     limit: 3,
+//   }); 
+//   console.log(JSON.stringify(subscriptions)+"      ssgsg")
+// const session = await stripe.checkout.sessions.list({
+//     limit: 3,
+//   });
+// const card = await stripe.customers.retrieveSource(
+      
+    
+//   );
+  res.json(session)
+
 });
 app.post('/create-checkout-session', async (req, res) => {
   const session = await stripe.checkout.sessions.create({
@@ -48,12 +66,36 @@ app.post('/create-checkout-session', async (req, res) => {
     // subscription_data:{
     //     coupon:'oV50lSe0'
     // }
-  });
+  }); 
+  
+ //console.log(session.customer.id)
+      
+ var js = JSON.stringify(session)
+//if(session.payment_status=='paid'){
+ sessionid=  js.id
+amount = js.amount_total;
+currency= js.currency
+//customer_id = js.customer.id
+//email = js.email;
+object = js.object;
+mode = js.mode;
+
+//}
+let sql = "INSERT INTO payments(sessionid,amount, currency,object,mode)values(?,?,?,?,?)";
+db.query(sql,  (err, res) => {
+  if (err) {
+    console.log("error: ", err);
+
+  }
+
+  console.log("created customer");
+});
   res.json({
     id: session.id,
   });
+  
 });
-
+ 
 // Stripe requires the raw body to construct the event
 app.post(
   "/webhook",
