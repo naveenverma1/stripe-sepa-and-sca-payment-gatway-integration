@@ -32,7 +32,9 @@
         })
         .then((response) => response.json())
         .then((session) => {
+          //console.log(session.id)
           stripe.redirectToCheckout({ sessionId: session.id });
+          //console.log(session.id)
         })
         .catch((error) => {
           console.error('Error:', error);

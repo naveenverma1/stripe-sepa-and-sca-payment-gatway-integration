@@ -46,7 +46,7 @@ app.get('/checkout-session', async (req, res) => {
 //   });
 // const card = await stripe.customers.retrieveSource(
       
-    
+
 //   );
   res.json(session)
 
@@ -66,30 +66,32 @@ app.post('/create-checkout-session', async (req, res) => {
     // subscription_data:{
     //     coupon:'oV50lSe0'
     // }
+    
   }); 
   
  //console.log(session.customer.id)
       
- var js = JSON.stringify(session)
+ var ses = JSON.stringify(session)
 //if(session.payment_status=='paid'){
- sessionid=  js.id
-amount = js.amount_total;
-currency= js.currency
-//customer_id = js.customer.id
-//email = js.email;
-object = js.object;
-mode = js.mode;
+  sessionid=  session.id
+  amount = session.amount_total;
+  currency= session.currency
+  //customer_id = session.customer.id
+  //email = session.email;
+  object = session.object;
+  mode = session.mode;
+  console.log(sessionid,amount,currency,object,mode)
+  //}
+  let sql = "INSERT INTO payments(amount, currency)values(?,?)";
 
-//}
-let sql = "INSERT INTO payments(sessionid,amount, currency,object,mode)values(?,?,?,?,?)";
-db.query(sql,  (err, res) => {
-  if (err) {
-    console.log("error: ", err);
-
-  }
-
-  console.log("created customer");
-});
+  db.query(sql,['10','Inr']  ,(err, res) => {
+    if (err) {
+      console.log("error: ", err);
+  
+    }else
+   
+    console.log("created customer");
+  });
   res.json({
     id: session.id,
   });
