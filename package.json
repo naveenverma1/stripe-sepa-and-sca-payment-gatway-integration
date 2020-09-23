@@ -2,9 +2,9 @@
   "name": "stripemtown",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "server3.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server3.js"
   },
   "author": "",
   "license": "ISC",
