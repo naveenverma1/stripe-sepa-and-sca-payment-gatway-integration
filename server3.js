@@ -4,7 +4,8 @@ const { resolve } = require("path");
 // Replace if using a different env file or config
 const env = require("dotenv").config({ path: "./.env" });
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
+var charge
+var customer
 app.use(express.static(process.env.STATIC_DIR));
 app.use(
   express.json({
@@ -23,7 +24,7 @@ app.get("/", (req, res) => {
   const path = resolve(process.env.STATIC_DIR + "/index.html");
   res.sendFile(path);
 });
-
+ 
 app.get("/stripe-key", (req, res) => {
   res.send({ publicKey: process.env.STRIPE_PUBLISHABLE_KEY });
 });
@@ -34,18 +35,27 @@ const calculateOrderAmount = items => {
   // people from directly manipulating the amount on the client
   return 1400;
 };
-
+// const card = await stripe.customers.updateSource(
+//     'cus_I4h1w0hTd29h0t',
+//     'card_1HUXdJICR0NVfhA1E3Cj0ZmQ',
+//     {name: 'Jenny Rosen'}
+//   );
 app.post("/pay", async (req, res) => {
    
   const { token, items } = req.body;
-
-  const orderAmount = calculateOrderAmount(items);
-  var customer=stripe.customers.create({
-    email: 'customer@example.com',
+  customer=stripe.customers.create({
+    email: 'naveen@gmail.com',
   })
+//   const source = await stripe.customer.createSource(
+     
+//     {source: source}
+//   );
+     console.log(req.body)
+  const orderAmount = calculateOrderAmount(items);
+ 
   try {
     // Create a charge with the token sent by the client
-    const charge = await stripe.charges.create({
+     charge = await stripe.charges.create({
         customer:customer,
       amount: orderAmount,
       currency: "inr",
@@ -56,16 +66,33 @@ app.post("/pay", async (req, res) => {
     'cus_I4hhpWAAlwXb4t',
     {object: 'card', limit: 3}
   );
-  console.log(JSON.stringify(cards)+"%%%%%%%%%%%%%%%%%%      card details")
-console.log(charge)
+ // console.log(JSON.stringify(cards))
+  s()
+    d()
+//console.log(charge)
     // That's it! You're done! The payment was processed 
     res.send(charge)
+    
   } catch (e) {
     // Handle "hard declines" e.g. insufficient funds, expired card, etc
     // See https://stripe.com/docs/declines/codes for more
     res.send({ error: e.message });
   }
 });
+// const updatecardd =  stripe.customers.updateSource(
+//    // 'cus_I4h1w0hTd29h0t',
+//    // {name: 'Jenny Rosen'}
+//   );
+  var s = async function(){ await console.log(customer)}
+ 
+  var d = async function(){
+    const card = await stripe.customer.updateSource(
+        //'cus_I4h1w0hTd29h0t',
+        'card_1HUZM0ICR0NVfhA1SW6o3X7I',
+        {name: 'Jenny Rosen'}
+      );
+      console.log(card)
+  } 
 // const card =  stripe.customers.retrieveSource(
 //     'cus_I4fg2AAUR8PwD0',
 //   'card_1HUXg5ICR0NVfhA1jMpLSvfO'
@@ -80,3 +107,4 @@ console.log(charge)
 //    console.log(card+"%%%%%%%%%%%%%%%%%%      card details");}
 
 app.listen(4242, () => console.log(`Node server listening on port ${4242}!`));
+ 
